@@ -14,12 +14,12 @@ use PrestaShop\Composer\Contracts\ActionInterface;
 final class ProcessExecutor implements ExecutorInterface
 {
     /**
-     * @var string $composer the Composer executable
+     * @var string the Composer executable
      */
     private $composer;
 
     /**
-     * @var string $rootPath the root path of the Shop
+     * @var string the root path of the Shop
      */
     private $rootPath;
 
@@ -49,6 +49,7 @@ final class ProcessExecutor implements ExecutorInterface
 
         try {
             $process->mustRun();
+
             return $process->getOutput();
         } catch (ProcessFailedException $exception) {
             return $process->getErrorOutput();

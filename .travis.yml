@@ -23,6 +23,7 @@ before_script:
 
 script:
   - composer test -- --coverage-clover=coverage.xml
+  - composer validate --strict
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)

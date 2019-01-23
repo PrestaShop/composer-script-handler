@@ -1,6 +1,5 @@
 {
     "name": "prestashop/composer-script-handler",
-    "version": "1.0.0",
     "description": "Composer Script Handler for PrestaShop",
     "license": "MIT",
     "authors": [
@@ -30,6 +29,20 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\PrestaShop\\Composer\\": "tests/"
+        }
+    },
+    "scripts": {
+        "cs-fix": "@php ./vendor/bin/php-cs-fixer fix",
+        "test": "@php ./vendor/bin/phpunit"
+    },
+    "scripts-descriptions": {
+        "cs-fix": "Check and fix coding styles using PHP CS Fixer",
+        "test": "Launch PHPUnit test suite"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "5.6"
         }
     }
 }

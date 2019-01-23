@@ -10,7 +10,7 @@ workflow "Code Quality" {
 
 action "PHPStan" {
   uses = "docker://oskarstark/phpstan-ga:with-extensions"
-  args = "analyse src tests --level max --configuration extension.neon"
+  args = "analyse src --level max"
   secrets = ["GITHUB_TOKEN"]
 }
 

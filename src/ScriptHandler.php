@@ -9,7 +9,7 @@ final class ScriptHandler
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
-        $rootPath = realpath($composer->getConfig()->get('vendor-dir') . '/..');
+        $rootPath = (string) realpath($composer->getConfig()->get('vendor-dir') . '/..');
 
         $extras = $composer->getPackage()->getExtra();
 
@@ -33,7 +33,7 @@ final class ScriptHandler
     public static function update(Event $event)
     {
         $composer = $event->getComposer();
-        $rootPath = realpath($composer->getConfig()->get('vendor-dir') . '/..');
+        $rootPath = (string) realpath($composer->getConfig()->get('vendor-dir') . '/..');
 
         $extras = $composer->getPackage()->getExtra();
 
