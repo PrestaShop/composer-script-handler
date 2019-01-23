@@ -35,16 +35,43 @@ final class ProcessExecutor implements ExecutorInterface
     /**
      * {@inheritdoc}
      */
-    public function execute(ActionInterface $action, PackageInterface $package)
+    public function execute(ActionInterface $action, $location)
     {
         $command = $this->composer . ' '
             . $action->getName() . ' '
-            . $package->getName() . ':' . $package->getVersion()
+            . implode(' ', $action->getArguments())
         ;
 
+        $this->executeProcess($command, $location);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeOnPackage(ActionInterface $action, PackageInterface $package)
+    {
+        $command = $this->composer . ' '
+            . $action->getName() . ' '
+            . $package->getName() . ':' . $package->getVersion() . ' '
+            . implode(' ', $action->getArguments())
+        ;
+
+        $this->executeProcess($command, $package->getDestination());
+    }
+
+    /**
+     * @param string $command the Process command
+     * @param string $location the Process location
+     *
+     * @throws ProcessFailedException
+     *
+     * @return string
+     */
+    private function executeProcess($command, $location)
+    {
         $process = new Process(
             $command,
-            $package->getDestination()
+            $location
         );
 
         try {
