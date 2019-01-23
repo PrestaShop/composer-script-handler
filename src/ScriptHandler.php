@@ -20,11 +20,13 @@ final class ScriptHandler
         $config = $extras['prestashop'];
 
         if (!is_array($config)) {
-            throw new \InvalidArgumentException('The extra.prestashop setting must be an array or a configuration object.');
+            throw new \InvalidArgumentException(
+                'The extra.prestashop setting must be an array or a configuration object.'
+            );
         }
 
         $processExecutor = new ProcessExecutor($rootPath);
-        $processor = new ConfigurationProcessor($event->getIO());
+        $processor = new ConfigurationProcessor($event->getIO(), $processExecutor);
         $processor->processInstallation($config, $rootPath);
     }
 
@@ -36,17 +38,21 @@ final class ScriptHandler
         $extras = $composer->getPackage()->getExtra();
 
         if (!isset($extras['prestashop'])) {
-            throw new \InvalidArgumentException('The parameter handler needs to be configured through the extra.prestashop-modules setting.');
+            throw new \InvalidArgumentException(
+                'The parameter handler needs to be configured through the extra.prestashop-modules setting.'
+            );
         }
 
         $config = $extras['prestashop'];
 
         if (!is_array($config)) {
-            throw new \InvalidArgumentException('The extra.prestashop setting must be an array or a configuration object.');
+            throw new \InvalidArgumentException(
+                'The extra.prestashop setting must be an array or a configuration object.'
+            );
         }
 
         $processExecutor = new ProcessExecutor($rootPath);
-        $processor = new ConfigurationProcessor($event->getIO());
+        $processor = new ConfigurationProcessor($event->getIO(), $processExecutor);
         $processor->processUpdate($config, $rootPath);
     }
 }
