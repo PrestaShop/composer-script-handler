@@ -71,9 +71,25 @@ final class Package implements PackageInterface
     /**
      * {@inheritdoc}
      */
+    public function getCompleteName()
+    {
+        return $this->getOwner() . '/' . $this->getName() . ':' . $this->getVersion();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getDestination()
     {
         return $this->destination;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isInstalled()
+    {
+        return file_exists($this->destination . $this->name);
     }
 
     /**

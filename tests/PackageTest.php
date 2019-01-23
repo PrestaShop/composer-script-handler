@@ -73,4 +73,16 @@ final class PackageTest extends TestCase
 
         $this->assertSame('/tmp/owner/name', $package->getDestination());
     }
+
+    public function testIsInstalled()
+    {
+        $package = new Package(
+            'owner',
+            'name',
+            'v1',
+            '/tmp/owner/name'
+        );
+
+        $this->assertFalse($package->isInstalled());
+    }
 }

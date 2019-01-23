@@ -27,4 +27,14 @@ interface PackageInterface
      * @return string the package destination location
      */
     public function getDestination();
+
+    /**
+     * @return string the package complete name
+     */
+    public function getCompleteName();
+
+    /**
+     * @return bool checks if the package has been installed
+     */
+    public function isInstalled();
 }

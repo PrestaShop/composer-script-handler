@@ -41,19 +41,7 @@ final class ScriptHandler
      */
     public static function update(Event $event)
     {
-        $composer = $event->getComposer();
-        $rootPath = (string) realpath($composer->getConfig()->get('vendor-dir') . '/..');
-
-        $extras = $composer->getPackage()->getExtra();
-
-        if (self::validateConfiguration($extras)) {
-            $config = $extras['prestashop'];
-
-            $processExecutor = new ProcessExecutor($rootPath);
-            $processor = new ConfigurationProcessor($event->getIO(), $processExecutor, $rootPath);
-
-            $processor->processUpdate($config);
-        }
+        self::install($event);
     }
 
     /**
