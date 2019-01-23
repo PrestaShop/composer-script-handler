@@ -77,7 +77,7 @@ final class ConfigurationProcessor
 
     private function installModule($moduleName, $moduleVersion, $location, $composerExecutable)
     {
-        $moduleInformation = Package::createFromString($moduleName, $moduleVersion);
+        $moduleInformation = Package::create($moduleName, $moduleVersion, $location);
         if (file_exists($location . $moduleInformation->getName())) {
             $this->io->write(sprintf('Module "%s" is already installed, skipped.', $moduleInformation->getName()));
 

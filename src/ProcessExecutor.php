@@ -4,6 +4,9 @@ namespace PrestaShop\Composer;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use PrestaShop\Composer\Contracts\ExecutorInterface;
+use PrestaShop\Composer\Contracts\PackageInterface;
+use PrestaShop\Composer\Contracts\ActionInterface;
 
 /**
  * Using Symfony Process Component, executes Composer actions
@@ -11,17 +14,17 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 final class ProcessExecutor implements ExecutorInterface
 {
     /**
-     * @var string the Composer executable
+     * @var string $composer the Composer executable
      */
     private $composer;
 
     /**
-     * @var string the root path of the Shop
+     * @var string $rootPath the root path of the Shop
      */
     private $rootPath;
 
     /**
-     * @param string the root path of the Shop
+     * @param string $rootPath the root path of the Shop
      */
     public function __construct($rootPath)
     {
@@ -46,9 +49,9 @@ final class ProcessExecutor implements ExecutorInterface
 
         try {
             $process->mustRun();
-            $this->io->write($process->getOutput());
+            return $process->getOutput();
         } catch (ProcessFailedException $exception) {
-            $this->io->writeError($process->getErrorOutput());
+            return $process->getErrorOutput();
         }
     }
 }

@@ -12,8 +12,8 @@ final class InvalidPackageException extends InvalidArgumentException
 {
     public function __construct($expression)
     {
-        $exceptionMessage = sprint('Expected expression like prestashop/some_module:1.0, got "%s"', $expression);
+        $exceptionMessage = sprintf('Expected expression like prestashop/some_module:1.0, got "%s"', $expression);
 
-        return parent::construct($exceptionMessage);
+        parent::__construct($exceptionMessage);
     }
 }

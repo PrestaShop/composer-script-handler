@@ -9,7 +9,7 @@ namespace PrestaShop\Composer\Contracts;
 interface PackageInterface
 {
     /**
-     * @return array the package name
+     * @return string the package name
      */
     public function getName();
 
