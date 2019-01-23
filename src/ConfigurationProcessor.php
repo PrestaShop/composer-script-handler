@@ -30,6 +30,13 @@ final class ConfigurationProcessor
      */
     private $modulesLocation;
 
+    /**
+     * ConfigurationProcessor constructor.
+     *
+     * @param IOInterface $io the CLI IO interface
+     * @param ExecutorInterface $composerExecutor the Composer command executor
+     * @param string $rootPath the Shop root path
+     */
     public function __construct(IOInterface $io, ExecutorInterface $composerExecutor, $rootPath)
     {
         $this->io = $io;
@@ -42,6 +49,8 @@ final class ConfigurationProcessor
      * into /modules/{module}/vendor folder.
      *
      * @param array $configuration the Composer configuration
+     *
+     * @return void
      */
     public function processInstallation(array $configuration)
     {
@@ -63,7 +72,7 @@ final class ConfigurationProcessor
                 return;
             }
 
-            $this->composerExecutor->executeOnPackage(new CreateProject(), $package);
+            $this->io->write($this->composerExecutor->executeOnPackage(new CreateProject(), $package));
         }
     }
 
@@ -72,6 +81,8 @@ final class ConfigurationProcessor
      * into /modules/{module}/vendor folder.
      *
      * @param array $configuration the Composer configuration
+     *
+     * @return void
      */
     public function processUpdate(array $configuration)
     {
@@ -86,7 +97,7 @@ final class ConfigurationProcessor
             $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
 
-            $this->composerExecutor->executeOnPackage(new Update(), $package);
+            $this->io->write($this->composerExecutor->executeOnPackage(new Update(), $package));
         }
     }
 }

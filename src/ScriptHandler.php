@@ -12,6 +12,11 @@ use InvalidArgumentException;
  */
 final class ScriptHandler
 {
+    /**
+     * @param Event $event the Composer event
+     *
+     * @return void the Script output
+     */
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
@@ -29,6 +34,11 @@ final class ScriptHandler
         }
     }
 
+    /**
+     * @param Event $event the Composer event
+     *
+     * @return void the Script output
+     */
     public static function update(Event $event)
     {
         $composer = $event->getComposer();

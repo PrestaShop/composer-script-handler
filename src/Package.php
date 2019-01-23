@@ -30,6 +30,12 @@ final class Package implements PackageInterface
      */
     private $destination;
 
+    /**
+     * @param string $owner the package owner
+     * @param string $name the package name
+     * @param string $version the package version
+     * @param string $destination the package destination
+     */
     public function __construct($owner, $name, $version, $destination)
     {
         $this->owner = $owner;
@@ -76,6 +82,8 @@ final class Package implements PackageInterface
      * @param string $expression the dependency expression ("foo/bar")
      * @param string $version the dependency version
      * @param string $destination the location where dependency is installed
+     *
+     * @return self
      */
     public static function create($expression, $version, $destination)
     {

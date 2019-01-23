@@ -14,6 +14,8 @@ interface ExecutorInterface
      *
      * @param ActionInterface $action the Composer action
      * @param string $location the Composer json file location directory
+     *
+     * @return string the execution output
      */
     public function execute(ActionInterface $action, $location);
 
@@ -22,6 +24,8 @@ interface ExecutorInterface
      *
      * @param ActionInterface $action the Composer action
      * @param PackageInterface $package the Composer package
+     *
+     * @return string the execution output
      */
     public function executeOnPackage(ActionInterface $action, PackageInterface $package);
 }

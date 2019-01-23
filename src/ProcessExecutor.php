@@ -42,7 +42,7 @@ final class ProcessExecutor implements ExecutorInterface
             . implode(' ', $action->getArguments())
         ;
 
-        $this->executeProcess($command, $location);
+        return $this->executeProcess($command, $location);
     }
 
     /**
@@ -56,7 +56,7 @@ final class ProcessExecutor implements ExecutorInterface
             . implode(' ', $action->getArguments())
         ;
 
-        $this->executeProcess($command, $package->getDestination());
+        return $this->executeProcess($command, $package->getDestination());
     }
 
     /**
