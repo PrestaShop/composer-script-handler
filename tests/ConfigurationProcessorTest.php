@@ -7,7 +7,7 @@ use PrestaShop\Composer\Contracts\ExecutorInterface;
 use Composer\IO\IOInterface;
 use PHPUnit\Framework\TestCase;
 
-class ConfigurationProcessorTest extends TestCase
+final class ConfigurationProcessorTest extends TestCase
 {
     /**
      * @var IOInterface the IO interface

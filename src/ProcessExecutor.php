@@ -38,11 +38,16 @@ final class ProcessExecutor implements ExecutorInterface
     public function execute(ActionInterface $action, $location)
     {
         $command = $this->composer . ' '
-            . $action->getName() . ' '
-            . implode(' ', $action->getArguments())
+            . $action->getName()
         ;
 
-        $this->executeProcess($command, $location);
+        $actionArgs = $action->getArguments();
+
+        if (count($actionArgs) > 0) {
+            $command .= ' ' . implode(' ', $actionArgs);
+        }
+
+        return $this->executeProcess($command, $location);
     }
 
     /**
@@ -52,11 +57,16 @@ final class ProcessExecutor implements ExecutorInterface
     {
         $command = $this->composer . ' '
             . $action->getName() . ' '
-            . $package->getName() . ':' . $package->getVersion() . ' '
-            . implode(' ', $action->getArguments())
+            . $package->getCompleteName()
         ;
 
-        $this->executeProcess($command, $package->getDestination());
+        $actionArgs = $action->getArguments();
+
+        if (count($actionArgs) > 0) {
+            $command .= ' ' . implode(' ', $actionArgs);
+        }
+
+        return $this->executeProcess($command, $package->getDestination());
     }
 
     /**
@@ -69,10 +79,9 @@ final class ProcessExecutor implements ExecutorInterface
      */
     private function executeProcess($command, $location)
     {
-        $process = new Process(
-            $command,
-            $location
-        );
+        $process = (new Process($command))
+            ->setWorkingDirectory($location)
+        ;
 
         try {
             $process->mustRun();

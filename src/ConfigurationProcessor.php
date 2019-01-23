@@ -3,7 +3,7 @@
 namespace PrestaShop\Composer;
 
 use Composer\IO\IOInterface;
-use PrestaShop\Composer\Actions\Update;
+use Symfony\Component\Filesystem\Filesystem;
 use PrestaShop\Composer\Actions\CreateProject;
 use PrestaShop\Composer\Contracts\ExecutorInterface;
 
@@ -30,6 +30,13 @@ final class ConfigurationProcessor
      */
     private $modulesLocation;
 
+    /**
+     * ConfigurationProcessor constructor.
+     *
+     * @param IOInterface $io the CLI IO interface
+     * @param ExecutorInterface $composerExecutor the Composer command executor
+     * @param string $rootPath the Shop root path
+     */
     public function __construct(IOInterface $io, ExecutorInterface $composerExecutor, $rootPath)
     {
         $this->io = $io;
@@ -42,6 +49,8 @@ final class ConfigurationProcessor
      * into /modules/{module}/vendor folder.
      *
      * @param array $configuration the Composer configuration
+     *
+     * @return void
      */
     public function processInstallation(array $configuration)
     {
@@ -57,36 +66,14 @@ final class ConfigurationProcessor
             $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
 
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
-            if (file_exists($this->modulesLocation . $package->getName())) {
-                $this->io->write(sprintf('Module "%s" is already installed, skipped.', $package->getName()));
-
-                return;
+            $modulePath = $this->modulesLocation . $package->getName();
+            if (file_exists($modulePath)) {
+                $filesystem = new Filesystem();
+                $filesystem->remove($modulePath);
+                $this->io->write(sprintf('Module "%s" is already installed, deleted.', $package->getName()));
             }
 
-            $this->composerExecutor->executeOnPackage(new CreateProject(), $package);
-        }
-    }
-
-    /**
-     * Foreach module, will install the module dependencies
-     * into /modules/{module}/vendor folder.
-     *
-     * @param array $configuration the Composer configuration
-     */
-    public function processUpdate(array $configuration)
-    {
-        $this->io->write('<info>PrestaShop Module installer</info>');
-        if (!array_key_exists('modules', $configuration)) {
-            return;
-        }
-
-        $nativeModules = $configuration['modules'];
-
-        foreach ($nativeModules as $moduleName => $moduleVersion) {
-            $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
-            $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
-
-            $this->composerExecutor->executeOnPackage(new Update(), $package);
+            $this->io->write($this->composerExecutor->executeOnPackage(new CreateProject(), $package));
         }
     }
 }

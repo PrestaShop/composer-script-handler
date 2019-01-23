@@ -12,6 +12,11 @@ use InvalidArgumentException;
  */
 final class ScriptHandler
 {
+    /**
+     * @param Event $event the Composer event
+     *
+     * @return void the Script output
+     */
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
@@ -29,21 +34,14 @@ final class ScriptHandler
         }
     }
 
+    /**
+     * @param Event $event the Composer event
+     *
+     * @return void the Script output
+     */
     public static function update(Event $event)
     {
-        $composer = $event->getComposer();
-        $rootPath = (string) realpath($composer->getConfig()->get('vendor-dir') . '/..');
-
-        $extras = $composer->getPackage()->getExtra();
-
-        if (self::validateConfiguration($extras)) {
-            $config = $extras['prestashop'];
-
-            $processExecutor = new ProcessExecutor($rootPath);
-            $processor = new ConfigurationProcessor($event->getIO(), $processExecutor, $rootPath);
-
-            $processor->processUpdate($config);
-        }
+        self::install($event);
     }
 
     /**
