@@ -3,7 +3,13 @@
 namespace PrestaShop\Composer;
 
 use Composer\Script\Event;
+use InvalidArgumentException;
 
+/**
+ * Entry point available through Composer script actions.
+ *
+ * Should be used for install and update actions.
+ */
 final class ScriptHandler
 {
     public static function install(Event $event)
@@ -13,21 +19,14 @@ final class ScriptHandler
 
         $extras = $composer->getPackage()->getExtra();
 
-        if (!isset($extras['prestashop'])) {
-            throw new \InvalidArgumentException('The extra.prestashop key needs to be defined.');
+        if (self::validateConfiguration($extras)) {
+            $config = $extras['prestashop'];
+
+            $processExecutor = new ProcessExecutor($rootPath);
+            $processor = new ConfigurationProcessor($event->getIO(), $processExecutor, $rootPath);
+
+            $processor->processInstallation($config);
         }
-
-        $config = $extras['prestashop'];
-
-        if (!is_array($config)) {
-            throw new \InvalidArgumentException(
-                'The extra.prestashop setting must be an array or a configuration object.'
-            );
-        }
-
-        $processExecutor = new ProcessExecutor($rootPath);
-        $processor = new ConfigurationProcessor($event->getIO(), $processExecutor);
-        $processor->processInstallation($config, $rootPath);
     }
 
     public static function update(Event $event)
@@ -37,22 +36,37 @@ final class ScriptHandler
 
         $extras = $composer->getPackage()->getExtra();
 
-        if (!isset($extras['prestashop'])) {
-            throw new \InvalidArgumentException(
-                'The parameter handler needs to be configured through the extra.prestashop-modules setting.'
-            );
+        if (self::validateConfiguration($extras)) {
+            $config = $extras['prestashop'];
+
+            $processExecutor = new ProcessExecutor($rootPath);
+            $processor = new ConfigurationProcessor($event->getIO(), $processExecutor, $rootPath);
+
+            $processor->processUpdate($config);
+        }
+    }
+
+    /**
+     * @param array $configuration the Composer configuration
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return bool true if valid
+     */
+    public static function validateConfiguration(array $configuration)
+    {
+        if (!isset($configuration['prestashop'])) {
+            throw new InvalidArgumentException('The extra.prestashop key needs to be defined.');
         }
 
-        $config = $extras['prestashop'];
+        $config = $configuration['prestashop'];
 
         if (!is_array($config)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'The extra.prestashop setting must be an array or a configuration object.'
             );
         }
 
-        $processExecutor = new ProcessExecutor($rootPath);
-        $processor = new ConfigurationProcessor($event->getIO(), $processExecutor);
-        $processor->processUpdate($config, $rootPath);
+        return true;
     }
 }

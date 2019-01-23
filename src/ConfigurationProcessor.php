@@ -3,10 +3,14 @@
 namespace PrestaShop\Composer;
 
 use Composer\IO\IOInterface;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
+use PrestaShop\Composer\Actions\Update;
+use PrestaShop\Composer\Actions\CreateProject;
 use PrestaShop\Composer\Contracts\ExecutorInterface;
 
+/**
+ * According to the configuration of "extras > prestashop" in Composer json file,
+ * will call a Process Executor to execute Composer commands.
+ */
 final class ConfigurationProcessor
 {
     const MODULES_PATH = '/modules/';
@@ -21,10 +25,16 @@ final class ConfigurationProcessor
      */
     private $composerExecutor;
 
-    public function __construct(IOInterface $io, ExecutorInterface $composerExecutor)
+    /**
+     * @var string the modules folder path of the Shop
+     */
+    private $modulesLocation;
+
+    public function __construct(IOInterface $io, ExecutorInterface $composerExecutor, $rootPath)
     {
         $this->io = $io;
         $this->composerExecutor = $composerExecutor;
+        $this->modulesLocation = $rootPath . self::MODULES_PATH;
     }
 
     /**
@@ -32,23 +42,28 @@ final class ConfigurationProcessor
      * into /modules/{module}/vendor folder.
      *
      * @param array $configuration the Composer configuration
-     * @param string $rootPath the root directory of the Shop
      */
-    public function processInstallation(array $configuration, $rootPath)
+    public function processInstallation(array $configuration)
     {
-        $composerExecutable = $rootPath . '/vendor/composer/composer/bin/composer';
         $this->io->write('<info>PrestaShop Module installer</info>');
 
-        if (!array_key_exists('native-modules', $configuration) || !array_key_exists('modules-dir', $configuration)) {
+        if (!array_key_exists('modules', $configuration)) {
             return;
         }
 
-        $nativeModules = $configuration['native-modules'];
-        $modulesLocation = $rootPath . self::MODULES_PATH;
+        $nativeModules = $configuration['modules'];
 
         foreach ($nativeModules as $moduleName => $moduleVersion) {
             $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
-            $this->installModule($moduleName, $moduleVersion, $modulesLocation, $composerExecutable);
+
+            $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
+            if (file_exists($this->modulesLocation . $package->getName())) {
+                $this->io->write(sprintf('Module "%s" is already installed, skipped.', $package->getName()));
+
+                return;
+            }
+
+            $this->composerExecutor->executeOnPackage(new CreateProject(), $package);
         }
     }
 
@@ -57,57 +72,21 @@ final class ConfigurationProcessor
      * into /modules/{module}/vendor folder.
      *
      * @param array $configuration the Composer configuration
-     * @param string $rootPath the modules directory location
      */
-    public function processUpdate(array $configuration, $rootPath)
+    public function processUpdate(array $configuration)
     {
         $this->io->write('<info>PrestaShop Module installer</info>');
-        if (!array_key_exists('native-modules', $configuration) || !array_key_exists('modules-dir', $configuration)) {
+        if (!array_key_exists('modules', $configuration)) {
             return;
         }
 
-        $nativeModules = $configuration['native-modules'];
-        $modulesLocation = $rootPath . self::MODULES_PATH;
+        $nativeModules = $configuration['modules'];
 
         foreach ($nativeModules as $moduleName => $moduleVersion) {
             $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
-            $this->updateModule($moduleName, $moduleVersion, $modulesLocation);
-        }
-    }
+            $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
 
-    private function installModule($moduleName, $moduleVersion, $location, $composerExecutable)
-    {
-        $moduleInformation = Package::create($moduleName, $moduleVersion, $location);
-        if (file_exists($location . $moduleInformation->getName())) {
-            $this->io->write(sprintf('Module "%s" is already installed, skipped.', $moduleInformation->getName()));
-
-            return;
-        }
-
-        $command = "$composerExecutable create-project " . $moduleName . ':' . $moduleVersion;
-        $process = new Process($command);
-        $process->setWorkingDirectory($location);
-
-        try {
-            $process->mustRun();
-            $this->io->write(sprintf('Module "%s" successfully installed!', $moduleInformation->getName()));
-            $this->io->write($process->getOutput());
-        } catch (ProcessFailedException $exception) {
-            $this->io->writeError($process->getErrorOutput());
-        }
-    }
-
-    private function updateModule($moduleName, $moduleVersion, $location)
-    {
-        $command = 'composer create-project ' . $moduleName . ':' . $moduleVersion;
-        $process = new Process($command);
-        $process->setWorkingDirectory($location);
-
-        try {
-            $process->mustRun();
-            $this->io->write($process->getOutput());
-        } catch (ProcessFailedException $exception) {
-            $this->io->writeError($process->getErrorOutput());
+            $this->composerExecutor->executeOnPackage(new Update(), $package);
         }
     }
 }

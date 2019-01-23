@@ -46,7 +46,8 @@ class ConfigurationProcessorTest extends TestCase
     {
         $this->processor = new ConfigurationProcessor(
             $this->io->reveal(),
-            $this->executor->reveal()
+            $this->executor->reveal(),
+            '/tmp'
         );
 
         $this->assertInstanceOf(ConfigurationProcessor::class, $this->processor);
