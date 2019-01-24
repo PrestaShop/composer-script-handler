@@ -79,6 +79,7 @@ final class ProcessExecutor implements ExecutorInterface
      */
     private function executeProcess($command, $location)
     {
+        gc_collect_cycles();
         $process = (new Process($command))
             ->setWorkingDirectory($location)
             ->setTimeout(60)

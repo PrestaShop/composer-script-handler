@@ -16,6 +16,13 @@ final class CreateProject implements ActionInterface
 
     public function __construct(array $actionsArguments = [])
     {
+        if (empty($actionsArguments)) {
+            $actionsArguments = [
+                '--no-scripts',
+                '--no-progress',
+                '--no-interaction'
+            ];
+        }
         $this->actionsArguments = $actionsArguments;
     }
 
