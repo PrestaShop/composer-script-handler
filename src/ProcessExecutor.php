@@ -81,14 +81,16 @@ final class ProcessExecutor implements ExecutorInterface
     {
         $process = (new Process($command))
             ->setWorkingDirectory($location)
+            ->setTimeout(60)
+            ->disableOutput()
         ;
 
         try {
             $process->mustRun();
 
-            return $process->getOutput();
+            return '[OK]';
         } catch (ProcessFailedException $exception) {
-            return $process->getErrorOutput();
+            return $exception->getMessage();
         }
     }
 }
