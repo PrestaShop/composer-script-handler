@@ -13,7 +13,6 @@ composer require prestashop/composer-script-handler --dev
 
 In your Shop, you can now declare modules into "prestashop.modules" in the "extras" section of Composer.
 
-Once you do that, on "install" and "update" processes, every module will be installed
-so you will always get the most "up to date" version of each module!
+Once you do that, on "install" and "update" processes, every module will be installed so you will always get the most "up to date" version of each module!
 
 > This project is under MIT license

@@ -26,17 +26,15 @@ final class ProcessManager implements ProcessManagerInterface
      */
     private $processes;
 
-    /**
-     * @var int
-     */
-    private $runningProcesses;
-
     public function __construct($timestamp, $maxParallelProcesses)
     {
         $this->timestamp = $timestamp;
         $this->maxParallelProcesses = $maxParallelProcesses;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function add($command, $location)
     {
         $this->processes[] = (new Process($command))
@@ -44,18 +42,25 @@ final class ProcessManager implements ProcessManagerInterface
         ;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function run()
     {
         $batchOfProcesses = array_chunk($this->processes, $this->maxParallelProcesses);
+        $output = '';
 
         foreach ($batchOfProcesses as $processes) {
-            $this->runProcesses($processes);
+            $output .= $this->runProcesses($processes);
         }
+
+        return $output;
     }
 
     private function runProcesses(array $processes)
     {
         $runningProcesses = count($processes);
+        $outputResult = '';
 
         foreach ($processes as $process) {
             $process->start();
@@ -70,5 +75,11 @@ final class ProcessManager implements ProcessManagerInterface
                 usleep($this->timestamp);
             }
         }
+
+        foreach ($processes as $process) {
+            $outputResult = $process->getOutput();
+        }
+
+        return $outputResult;
     }
 }

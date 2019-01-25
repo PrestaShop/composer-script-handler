@@ -10,9 +10,12 @@ final class UpdateTest extends TestCase
     public function testCreation()
     {
         $this->assertInstanceOf(Update::class, new Update());
-        $this->assertInstanceOf(Update::class, new Update(
-            ['foo' => 'bar']
-        ));
+        $arguments = ['foo' => 'bar'];
+
+        $this->assertInstanceOf(
+            Update::class,
+            new Update($arguments)
+        );
     }
 
     public function testGetName()
@@ -22,14 +25,21 @@ final class UpdateTest extends TestCase
         $this->assertSame('update', $action->getName());
     }
 
-    public function testGetArguments()
+    public function testGetArgumentsWithoutArguments()
     {
         $actionsWithoutArguments = new Update();
 
         $this->assertSame([], $actionsWithoutArguments->getArguments());
+    }
 
-        $action = new Update(['foo' => 'bar']);
+    public function testGetArguments()
+    {
+        $arguments = ['foo' => 'bar'];
+        $action = new Update($arguments);
 
-        $this->assertSame(['foo' => 'bar'], $action->getArguments());
+        $this->assertSame(
+            $arguments,
+            $action->getArguments()
+        );
     }
 }
