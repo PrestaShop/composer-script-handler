@@ -26,11 +26,6 @@ final class ProcessManager implements ProcessManagerInterface
      */
     private $processes;
 
-    /**
-     * @var int
-     */
-    private $runningProcesses;
-
     public function __construct($timestamp, $maxParallelProcesses)
     {
         $this->timestamp = $timestamp;
