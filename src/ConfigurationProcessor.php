@@ -79,6 +79,6 @@ final class ConfigurationProcessor
             $processManager->add($command, $this->modulesLocation);
         }
 
-        $processManager->run();
+        $this->io->write($processManager->run());
     }
 }
