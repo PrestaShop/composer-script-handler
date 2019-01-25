@@ -37,6 +37,9 @@ final class ProcessManager implements ProcessManagerInterface
         $this->maxParallelProcesses = $maxParallelProcesses;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function add($command, $location)
     {
         $this->processes[] = (new Process($command))
@@ -44,6 +47,9 @@ final class ProcessManager implements ProcessManagerInterface
         ;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function run()
     {
         $batchOfProcesses = array_chunk($this->processes, $this->maxParallelProcesses);
