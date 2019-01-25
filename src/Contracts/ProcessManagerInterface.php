@@ -7,7 +7,7 @@ namespace PrestaShop\Composer\Contracts;
  * multiple calls of Process, for performance
  * mainly.
  */
-interface ProcessManagerInterace
+interface ProcessManagerInterface
 {
     /**
      * @param string $command the Process command to execute
