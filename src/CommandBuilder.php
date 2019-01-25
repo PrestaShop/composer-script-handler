@@ -3,15 +3,14 @@
 namespace PrestaShop\Composer;
 
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use PrestaShop\Composer\Contracts\ExecutorInterface;
+use PrestaShop\Composer\Contracts\CommandBuilderInterface;
 use PrestaShop\Composer\Contracts\PackageInterface;
 use PrestaShop\Composer\Contracts\ActionInterface;
 
 /**
  * Using Symfony Process Component, executes Composer actions
  */
-final class ProcessExecutor implements ExecutorInterface
+final class CommandBuilder implements CommandBuilderInterface
 {
     /**
      * @var string the Composer executable
@@ -35,7 +34,7 @@ final class ProcessExecutor implements ExecutorInterface
     /**
      * {@inheritdoc}
      */
-    public function execute(ActionInterface $action, $location)
+    public function getCommand(ActionInterface $action)
     {
         $command = $this->composer . ' '
             . $action->getName()
@@ -47,13 +46,13 @@ final class ProcessExecutor implements ExecutorInterface
             $command .= ' ' . implode(' ', $actionArgs);
         }
 
-        return $this->executeProcess($command, $location);
+        return $command;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function executeOnPackage(ActionInterface $action, PackageInterface $package)
+    public function getCommandOnPackage(ActionInterface $action, PackageInterface $package)
     {
         $command = $this->composer . ' '
             . $action->getName() . ' '
@@ -66,32 +65,6 @@ final class ProcessExecutor implements ExecutorInterface
             $command .= ' ' . implode(' ', $actionArgs);
         }
 
-        return $this->executeProcess($command, $package->getDestination());
-    }
-
-    /**
-     * @param string $command the Process command
-     * @param string $location the Process location
-     *
-     * @throws ProcessFailedException
-     *
-     * @return string
-     */
-    private function executeProcess($command, $location)
-    {
-        gc_collect_cycles();
-        $process = (new Process($command))
-            ->setWorkingDirectory($location)
-            ->setTimeout(60)
-            ->disableOutput()
-        ;
-
-        try {
-            $process->mustRun();
-
-            return '[OK]';
-        } catch (ProcessFailedException $exception) {
-            return $exception->getMessage();
-        }
+        return $command;
     }
 }

@@ -26,7 +26,11 @@ final class CreateProjectTest extends TestCase
     {
         $actionsWithoutArguments = new CreateProject();
 
-        $this->assertSame([], $actionsWithoutArguments->getArguments());
+        $this->assertSame([
+            '--no-scripts',
+            '--no-progress',
+            '--no-interaction',
+        ], $actionsWithoutArguments->getArguments());
 
         $action = new CreateProject(['foo' => 'bar']);
 

@@ -3,7 +3,7 @@
 namespace Tests\PrestaShop\Composer;
 
 use PrestaShop\Composer\ConfigurationProcessor;
-use PrestaShop\Composer\Contracts\ExecutorInterface;
+use PrestaShop\Composer\Contracts\CommandBuilderInterface;
 use Composer\IO\IOInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -15,9 +15,9 @@ final class ConfigurationProcessorTest extends TestCase
     private $io;
 
     /**
-     * @var ExecutorInterface the process executor
+     * @var CommandBuilderInterface the commandBuilder
      */
-    private $executor;
+    private $commandBuilder;
 
     /**
      * @var ConfigurationProcessor
@@ -31,7 +31,7 @@ final class ConfigurationProcessorTest extends TestCase
     {
         parent::setUp();
         $this->io = $this->prophesize(IOInterface::class);
-        $this->executor = $this->prophesize(ExecutorInterface::class);
+        $this->commandBuilder = $this->prophesize(CommandBuilderInterface::class);
     }
 
     /**
@@ -46,7 +46,7 @@ final class ConfigurationProcessorTest extends TestCase
     {
         $this->processor = new ConfigurationProcessor(
             $this->io->reveal(),
-            $this->executor->reveal(),
+            $this->commandBuilder->reveal(),
             '/tmp'
         );
 

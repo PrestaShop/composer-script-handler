@@ -4,8 +4,9 @@ namespace PrestaShop\Composer;
 
 use Composer\IO\IOInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use PrestaShop\Composer\ProcessManager\ProcessManager;
 use PrestaShop\Composer\Actions\CreateProject;
-use PrestaShop\Composer\Contracts\ExecutorInterface;
+use PrestaShop\Composer\Contracts\CommandBuilderInterface;
 
 /**
  * According to the configuration of "extras > prestashop" in Composer json file,
@@ -21,9 +22,9 @@ final class ConfigurationProcessor
     private $io;
 
     /**
-     * @var ExecutorInterface the Composer command executor
+     * @var CommandBuilderInterface the Composer command builder
      */
-    private $composerExecutor;
+    private $commandBuilder;
 
     /**
      * @var string the modules folder path of the Shop
@@ -34,13 +35,13 @@ final class ConfigurationProcessor
      * ConfigurationProcessor constructor.
      *
      * @param IOInterface $io the CLI IO interface
-     * @param ExecutorInterface $composerExecutor the Composer command executor
+     * @param CommandBuilderInterface $commandBuilder the Composer command executor
      * @param string $rootPath the Shop root path
      */
-    public function __construct(IOInterface $io, ExecutorInterface $composerExecutor, $rootPath)
+    public function __construct(IOInterface $io, CommandBuilderInterface $commandBuilder, $rootPath)
     {
         $this->io = $io;
-        $this->composerExecutor = $composerExecutor;
+        $this->commandBuilder = $commandBuilder;
         $this->modulesLocation = $rootPath . self::MODULES_PATH;
     }
 
@@ -61,6 +62,7 @@ final class ConfigurationProcessor
         }
 
         $nativeModules = $configuration['modules'];
+        $processManager = new ProcessManager(100, 8);
 
         foreach ($nativeModules as $moduleName => $moduleVersion) {
             $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
@@ -73,7 +75,10 @@ final class ConfigurationProcessor
                 $this->io->write(sprintf('Module "%s" is already installed, deleted.', $package->getName()));
             }
 
-            $this->io->write($this->composerExecutor->executeOnPackage(new CreateProject(), $package));
+            $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);
+            $processManager->add($command, $this->modulesLocation);
         }
+
+        $processManager->run();
     }
 }

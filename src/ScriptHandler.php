@@ -27,8 +27,8 @@ final class ScriptHandler
         if (self::validateConfiguration($extras)) {
             $config = $extras['prestashop'];
 
-            $processExecutor = new ProcessExecutor($rootPath);
-            $processor = new ConfigurationProcessor($event->getIO(), $processExecutor, $rootPath);
+            $commandBuilder = new CommandBuilder($rootPath);
+            $processor = new ConfigurationProcessor($event->getIO(), $commandBuilder, $rootPath);
 
             $processor->processInstallation($config);
         }

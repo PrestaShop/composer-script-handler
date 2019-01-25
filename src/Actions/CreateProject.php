@@ -20,7 +20,7 @@ final class CreateProject implements ActionInterface
             $actionsArguments = [
                 '--no-scripts',
                 '--no-progress',
-                '--no-interaction'
+                '--no-interaction',
             ];
         }
         $this->actionsArguments = $actionsArguments;
