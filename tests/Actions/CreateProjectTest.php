@@ -22,16 +22,23 @@ final class CreateProjectTest extends TestCase
         $this->assertSame('create-project', $action->getName());
     }
 
-    public function testGetArguments()
+    public function testGetArgumentsWithoutArguments()
     {
         $actionsWithoutArguments = new CreateProject();
-
-        $this->assertSame([
+        $currentArgs = [
             '--no-scripts',
             '--no-progress',
             '--no-interaction',
-        ], $actionsWithoutArguments->getArguments());
+        ];
 
+        $this->assertSame(
+            $currentArgs,
+            $actionsWithoutArguments->getArguments()
+        );
+    }
+
+    public function testGetArguments()
+    {
         $action = new CreateProject(['foo' => 'bar']);
 
         $this->assertSame(['foo' => 'bar'], $action->getArguments());
