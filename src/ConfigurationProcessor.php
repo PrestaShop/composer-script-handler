@@ -99,7 +99,13 @@ final class ConfigurationProcessor
             }
 
             if (!file_exists($modulePath)) {
-                $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
+                $this->io->write(
+                    sprintf(
+                        '<info>Looked into "%s" module (version %s)</info>',
+                        $moduleName,
+                        $moduleVersion
+                    )
+                );
 
                 $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);
                 $processManager->add($command, $this->modulesLocation);
