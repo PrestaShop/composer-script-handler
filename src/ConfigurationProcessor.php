@@ -14,7 +14,20 @@ use PrestaShop\Composer\Contracts\CommandBuilderInterface;
  */
 final class ConfigurationProcessor
 {
+    /**
+     * @var string the modules path
+     */
     const MODULES_PATH = '/modules/';
+
+    /**
+     * @var int the number of allowed parallel PHP processes
+     */
+    const PARALLEL_PROCESSES = 8;
+
+    /**
+     * @var int the timeout before wait the status of a process (in ms)
+     */
+    const WAIT_FOR_PROCESS_STATUS_TIMEOUT = 100;
 
     /**
      * @var IOInterface the CLI IO interface
@@ -62,21 +75,35 @@ final class ConfigurationProcessor
         }
 
         $nativeModules = $configuration['modules'];
-        $processManager = new ProcessManager(100, 8);
+        $timeout = array_key_exists('timeout', $configuration) ?
+            $configuration['timeout'] :
+            self::WAIT_FOR_PROCESS_STATUS_TIMEOUT
+        ;
+
+        $processes = array_key_exists('processes', $configuration) ?
+            $configuration['processes'] :
+            self::PARALLEL_PROCESSES
+        ;
+
+        $processManager = new ProcessManager($timeout, $processes);
+        $shouldOverWrite = $this->io->askConfirmation('Do you want to overwrite the existing modules? (y/n)');
 
         foreach ($nativeModules as $moduleName => $moduleVersion) {
-            $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
-
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
             $modulePath = $this->modulesLocation . $package->getName();
-            if (file_exists($modulePath)) {
+
+            if ($shouldOverWrite && file_exists($modulePath)) {
                 $filesystem = new Filesystem();
                 $filesystem->remove($modulePath);
-                $this->io->write(sprintf('Module "%s" is already installed, deleted.', $package->getName()));
+                $this->io->write(sprintf('Module "%s" will be overwritten.', $package->getName()));
             }
 
-            $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);
-            $processManager->add($command, $this->modulesLocation);
+            if (!file_exists($modulePath)) {
+                $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
+
+                $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);
+                $processManager->add($command, $this->modulesLocation);
+            }
         }
 
         $this->io->write($processManager->run());

@@ -24,7 +24,7 @@ final class ProcessManager implements ProcessManagerInterface
     /**
      * @var Process[]
      */
-    private $processes;
+    private $processes = [];
 
     public function __construct($timestamp, $maxParallelProcesses)
     {
@@ -47,6 +47,10 @@ final class ProcessManager implements ProcessManagerInterface
      */
     public function run()
     {
+        if (count($this->processes) === 0) {
+            return 'No new modules installed.';
+        }
+
         $batchOfProcesses = array_chunk($this->processes, $this->maxParallelProcesses);
         $output = '';
 
