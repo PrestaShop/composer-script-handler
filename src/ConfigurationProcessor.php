@@ -22,12 +22,11 @@ final class ConfigurationProcessor
     /**
      * @var int the number of allowed parallel PHP processes
      */
-    const PARALLEL_PROCESSES = 8;
-
+    const DEFAULT_PARALLEL_PROCESSES = 8;
     /**
-     * @var int the timeout before wait the status of a process (in ms)
+     * @var int the time to wait before check the status of a process (in ms)
      */
-    const WAIT_FOR_PROCESS_STATUS_TIMEOUT = 100;
+    const DEFAULT_PROCESS_FREQUENCY = 200;
 
     /**
      * @var IOInterface the CLI IO interface
@@ -70,22 +69,22 @@ final class ConfigurationProcessor
     {
         $this->io->write('<info>PrestaShop Module installer</info>');
 
-        if (!array_key_exists('modules', $configuration)) {
+        if (!isset($configuration['modules'])) {
             return;
         }
 
         $nativeModules = $configuration['modules'];
-        $timeout = array_key_exists('timeout', $configuration) ?
-            $configuration['timeout'] :
-            self::WAIT_FOR_PROCESS_STATUS_TIMEOUT
+        $frequency = isset($configuration['frequency']) ?
+            $configuration['frequency'] :
+            self::DEFAULT_PROCESS_FREQUENCY
         ;
 
-        $processes = array_key_exists('processes', $configuration) ?
+        $processes = isset($configuration['processes']) ?
             $configuration['processes'] :
-            self::PARALLEL_PROCESSES
+            self::DEFAULT_PARALLEL_PROCESSES
         ;
 
-        $processManager = new ProcessManager($timeout, $processes);
+        $processManager = new ProcessManager($frequency, $processes, $this->io);
         $shouldOverWrite = $this->io->askConfirmation('Do you want to overwrite the existing modules? (y/n)');
 
         foreach ($nativeModules as $moduleName => $moduleVersion) {
@@ -101,10 +100,12 @@ final class ConfigurationProcessor
             if (!file_exists($modulePath)) {
                 $this->io->write(
                     sprintf(
-                        '<info>Looked into "%s" module (version %s)</info>',
+                        '<info>Installation of "%s" module (version %s)</info>',
                         $moduleName,
                         $moduleVersion
-                    )
+                    ),
+                    true,
+                    IOInterface::VERBOSE
                 );
 
                 $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);

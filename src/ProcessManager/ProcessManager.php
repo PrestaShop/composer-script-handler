@@ -3,6 +3,7 @@
 namespace PrestaShop\Composer\ProcessManager;
 
 use Symfony\Component\Process\Process;
+use Composer\IO\IOInterface;
 use PrestaShop\Composer\Contracts\ProcessManagerInterface;
 
 /**
@@ -14,7 +15,7 @@ final class ProcessManager implements ProcessManagerInterface
     /**
      * @var int
      */
-    private $timestamp;
+    private $frequency;
 
     /**
      * @var int
@@ -22,14 +23,25 @@ final class ProcessManager implements ProcessManagerInterface
     private $maxParallelProcesses;
 
     /**
+     * @var IOInterface the IO interface
+     */
+    private $io;
+
+    /**
      * @var Process[]
      */
     private $processes = [];
 
-    public function __construct($timestamp, $maxParallelProcesses)
+    /**
+     * @var int the operations to be processed
+     */
+    private $operations = 0;
+
+    public function __construct($frequency, $maxParallelProcesses, IOInterface $io)
     {
-        $this->timestamp = $timestamp;
+        $this->frequency = $frequency;
         $this->maxParallelProcesses = $maxParallelProcesses;
+        $this->io = $io;
     }
 
     /**
@@ -48,9 +60,10 @@ final class ProcessManager implements ProcessManagerInterface
     public function run()
     {
         if (count($this->processes) === 0) {
-            return 'No new modules installed.';
+            $this->io->writeError('No operations to process');
         }
 
+        $this->io->write('<info>Starting operations...</info>');
         $batchOfProcesses = array_chunk($this->processes, $this->maxParallelProcesses);
         $output = '';
 
@@ -61,6 +74,9 @@ final class ProcessManager implements ProcessManagerInterface
         return $output;
     }
 
+    /**
+     * @param array $processes a list of processes to execute and check
+     */
     private function runProcesses(array $processes)
     {
         $runningProcesses = count($processes);
@@ -74,14 +90,22 @@ final class ProcessManager implements ProcessManagerInterface
             foreach ($processes as $process) {
                 if (!$process->isRunning()) {
                     --$runningProcesses;
+                    ++$this->operations;
                 }
 
-                usleep($this->timestamp);
+                usleep($this->frequency);
+                $this->io->overwrite(
+                    sprintf(
+                        '<info>Processing operations... (%s/%s) </info>',
+                        $this->operations,
+                        count($this->processes)
+                    )
+                );
             }
         }
 
         foreach ($processes as $process) {
-            $outputResult = $process->getOutput();
+            $outputResult .= $process->getOutput();
         }
 
         return $outputResult;

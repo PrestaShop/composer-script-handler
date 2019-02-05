@@ -23,7 +23,7 @@ You can configure the list of modules, the number of process to paralleling the 
 
 * modules: this is the list of Composer packages with a version, they **must** be of "prestashop-module" type;
 * processes: it's the number of parallel process allowed to download modules (**8** by default)
-* timeout: the timeout before check the status of each current processes,in ms (**100** by default)
+* frequency: the time to wait before check the status of each current processes,in ms (**200** by default)
 
 ```js
 {
@@ -43,7 +43,7 @@ You can configure the list of modules, the number of process to paralleling the 
                 "prestashop/dashgoals": "^2"
             },
             "processes": 12,
-            "timeout": 80
+            "frequency": 80
         }
     }
 }
