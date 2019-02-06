@@ -26,7 +26,7 @@ final class ConfigurationProcessor
     /**
      * @var int the time to wait before check the status of a process (in ms)
      */
-    const DEFAULT_PROCESS_FREQUENCY = 200;
+    const DEFAULT_PROCESS_UPDATE_FREQUENCY = 200;
 
     /**
      * @var IOInterface the CLI IO interface
@@ -73,10 +73,10 @@ final class ConfigurationProcessor
             return;
         }
 
-        $nativeModules = $configuration['modules'];
-        $frequency = isset($configuration['frequency']) ?
-            $configuration['frequency'] :
-            self::DEFAULT_PROCESS_FREQUENCY
+        $modules = $configuration['modules'];
+        $updateFrequency = isset($configuration['update-frequency']) ?
+            $configuration['update-frequency'] :
+            self::DEFAULT_PROCESS_UPDATE_FREQUENCY
         ;
 
         $processes = isset($configuration['processes']) ?
@@ -84,10 +84,10 @@ final class ConfigurationProcessor
             self::DEFAULT_PARALLEL_PROCESSES
         ;
 
-        $processManager = new ProcessManager($frequency, $processes, $this->io);
+        $processManager = new ProcessManager($updateFrequency, $processes, $this->io);
         $shouldOverWrite = $this->io->askConfirmation('Do you want to overwrite the existing modules? (y/n)');
 
-        foreach ($nativeModules as $moduleName => $moduleVersion) {
+        foreach ($modules as $moduleName => $moduleVersion) {
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
             $modulePath = $this->modulesLocation . $package->getName();
 

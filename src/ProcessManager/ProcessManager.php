@@ -15,7 +15,7 @@ final class ProcessManager implements ProcessManagerInterface
     /**
      * @var int
      */
-    private $frequency;
+    private $updateFrequency;
 
     /**
      * @var int
@@ -37,9 +37,9 @@ final class ProcessManager implements ProcessManagerInterface
      */
     private $operations = 0;
 
-    public function __construct($frequency, $maxParallelProcesses, IOInterface $io)
+    public function __construct($updateFrequency, $maxParallelProcesses, IOInterface $io)
     {
-        $this->frequency = $frequency;
+        $this->updateFrequency = $updateFrequency;
         $this->maxParallelProcesses = $maxParallelProcesses;
         $this->io = $io;
     }
@@ -93,7 +93,7 @@ final class ProcessManager implements ProcessManagerInterface
                     ++$this->operations;
                 }
 
-                usleep($this->frequency);
+                usleep($this->updateFrequency);
                 $this->io->overwrite(
                     sprintf(
                         '<info>Processing operations... (%s/%s) </info>',
