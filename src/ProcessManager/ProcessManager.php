@@ -99,7 +99,8 @@ final class ProcessManager implements ProcessManagerInterface
                         '<info>Processing operations... (%s/%s) </info>',
                         $this->operations,
                         count($this->processes)
-                    )
+                    ),
+                    false
                 );
             }
         }
