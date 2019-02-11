@@ -22,7 +22,7 @@ Once you do that, on "install" process, the list of modules will be installed an
 You can configure the list of modules, the number of process to paralleling the download of modules and the timeout to wait for download status.
 
 * `modules`: this is the list of Composer packages with a version, they **must** be of "prestashop-module" type;
-* `processes`: it's the number of parallel process allowed to download modules (**8** by default)
+* `processes`: it's the number of parallel process allowed to download modules (**2** by default)
 * `update-frequency`: the time to wait before check the status of each current processes,in ms (**200** by default)
 
 ```js

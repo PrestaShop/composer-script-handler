@@ -22,7 +22,7 @@ final class ConfigurationProcessor
     /**
      * @var int the number of allowed parallel PHP processes
      */
-    const DEFAULT_PARALLEL_PROCESSES = 8;
+    const DEFAULT_PARALLEL_PROCESSES = 2;
     /**
      * @var int the time to wait before check the status of a process (in ms)
      */
