@@ -14,7 +14,19 @@ use PrestaShop\Composer\Contracts\CommandBuilderInterface;
  */
 final class ConfigurationProcessor
 {
+    /**
+     * @var string the modules path
+     */
     const MODULES_PATH = '/modules/';
+
+    /**
+     * @var int the number of allowed parallel PHP processes
+     */
+    const DEFAULT_PARALLEL_PROCESSES = 2;
+    /**
+     * @var int the time to wait before check the status of a process (in ms)
+     */
+    const DEFAULT_PROCESS_UPDATE_FREQUENCY = 200;
 
     /**
      * @var IOInterface the CLI IO interface
@@ -57,26 +69,48 @@ final class ConfigurationProcessor
     {
         $this->io->write('<info>PrestaShop Module installer</info>');
 
-        if (!array_key_exists('modules', $configuration)) {
+        if (!isset($configuration['modules'])) {
             return;
         }
 
-        $nativeModules = $configuration['modules'];
-        $processManager = new ProcessManager(100, 8);
+        $modules = $configuration['modules'];
+        $updateFrequency = isset($configuration['update-frequency']) ?
+            $configuration['update-frequency'] :
+            self::DEFAULT_PROCESS_UPDATE_FREQUENCY
+        ;
 
-        foreach ($nativeModules as $moduleName => $moduleVersion) {
-            $this->io->write(sprintf('<info>Looked into "%s" module (version %s)</info>', $moduleName, $moduleVersion));
+        $processes = isset($configuration['processes']) ?
+            $configuration['processes'] :
+            self::DEFAULT_PARALLEL_PROCESSES
+        ;
 
+        $processManager = new ProcessManager($updateFrequency, $processes, $this->io);
+        $shouldOverWrite = $this->io->askConfirmation('Do you want to overwrite the existing modules? (y/n)');
+
+        foreach ($modules as $moduleName => $moduleVersion) {
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
             $modulePath = $this->modulesLocation . $package->getName();
-            if (file_exists($modulePath)) {
+
+            if ($shouldOverWrite && file_exists($modulePath)) {
                 $filesystem = new Filesystem();
                 $filesystem->remove($modulePath);
-                $this->io->write(sprintf('Module "%s" is already installed, deleted.', $package->getName()));
+                $this->io->write(sprintf('Module "%s" will be overwritten.', $package->getName()));
             }
 
-            $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);
-            $processManager->add($command, $this->modulesLocation);
+            if (!file_exists($modulePath)) {
+                $this->io->write(
+                    sprintf(
+                        '<info>Installation of "%s" module (version %s)</info>',
+                        $moduleName,
+                        $moduleVersion
+                    ),
+                    true,
+                    IOInterface::VERBOSE
+                );
+
+                $command = $this->commandBuilder->getCommandOnPackage(new CreateProject(), $package);
+                $processManager->add($command, $this->modulesLocation);
+            }
         }
 
         $this->io->write($processManager->run());
