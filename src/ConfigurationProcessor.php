@@ -26,7 +26,12 @@ final class ConfigurationProcessor
     /**
      * @var int the time to wait before check the status of a process (in ms)
      */
-    const DEFAULT_PROCESS_UPDATE_FREQUENCY = 200;
+    const DEFAULT_PROCESS_UPDATE_FREQUENCY = 2000;
+
+    /**
+     * @var bool default value for overwriting modules operations
+     */
+    const DEFAULT_OVERWRITING_PROCESS = true;
 
     /**
      * @var IOInterface the CLI IO interface
@@ -84,17 +89,27 @@ final class ConfigurationProcessor
             self::DEFAULT_PARALLEL_PROCESSES
         ;
 
+        $overwritingValue = false !== getenv('NO_OVERWRITE') ?
+            false :
+            self::DEFAULT_OVERWRITING_PROCESS
+        ;
+
         $processManager = new ProcessManager($updateFrequency, $processes, $this->io);
-        $shouldOverWrite = $this->io->askConfirmation('Do you want to overwrite the existing modules? (y/n)');
+        $shouldOverWrite = $this->io->askConfirmation(
+            'Do you want to overwrite the existing modules? (y/n)',
+            $overwritingValue
+        );
 
         foreach ($modules as $moduleName => $moduleVersion) {
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
             $modulePath = $this->modulesLocation . $package->getName();
 
-            if ($shouldOverWrite && file_exists($modulePath)) {
-                $filesystem = new Filesystem();
-                $filesystem->remove($modulePath);
-                $this->io->write(sprintf('Module "%s" will be overwritten.', $package->getName()));
+            if ($shouldOverWrite) {
+                if (file_exists($modulePath)) {
+                    $filesystem = new Filesystem();
+                    $filesystem->remove($modulePath);
+                    $this->io->write(sprintf('Module "%s" will be overwritten.', $package->getName()));
+                }
             }
 
             if (!file_exists($modulePath)) {

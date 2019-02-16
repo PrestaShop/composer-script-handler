@@ -23,7 +23,7 @@ You can configure the list of modules, the number of process to paralleling the 
 
 * `modules`: this is the list of Composer packages with a version, they **must** be of "prestashop-module" type;
 * `processes`: it's the number of parallel process allowed to download modules (**2** by default)
-* `update-frequency`: the time to wait before check the status of each current processes,in ms (**200** by default)
+* `update-frequency`: the time to wait before check the status of each current processes,in ms (**2000** by default)
 
 ```js
 {
@@ -48,5 +48,10 @@ You can configure the list of modules, the number of process to paralleling the 
     }
 }
 ```
+
+### Performances
+
+You may not need to overwrite modules installation between parallel builds during CI operations.
+You can disable this feature using `NO_OVERWRITE` environment variable when calling ``composer install` command.
 
 > This project is under MIT license
