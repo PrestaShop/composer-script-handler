@@ -21,16 +21,15 @@ final class ScriptHandler
     {
         $composer = $event->getComposer();
         $rootPath = (string) realpath($composer->getConfig()->get('vendor-dir') . '/..');
-
         $extras = $composer->getPackage()->getExtra();
 
         if (self::validateConfiguration($extras)) {
+            $event->getIO()->write('<info>PrestaShop Module installer</info>');
             $config = $extras['prestashop'];
-
             $commandBuilder = new CommandBuilder($rootPath);
-            $processor = new ConfigurationProcessor($event->getIO(), $commandBuilder, $rootPath);
-
-            $processor->processInstallation($config);
+            $configuration = new ConfigurationProcessor($config);
+            $moduleInstaller = new ModuleInstaller($event->getIO(), $commandBuilder, $rootPath);
+            $installer->execute();
         }
     }
 
@@ -65,6 +64,6 @@ final class ScriptHandler
             );
         }
 
-        return true;
+        return isset($configuration['prestashop']['modules']);
     }
 }

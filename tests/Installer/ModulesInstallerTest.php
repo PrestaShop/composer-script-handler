@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\PrestaShop\Composer;
+namespace Tests\PrestaShop\Composer\Installer;
 
-use PrestaShop\Composer\ConfigurationProcessor;
+use PrestaShop\Composer\Installer\ModulesInstaller;
 use PrestaShop\Composer\Contracts\CommandBuilderInterface;
 use Composer\IO\IOInterface;
 use PHPUnit\Framework\TestCase;
 
-final class ConfigurationProcessorTest extends TestCase
+final class ModulesInstallerTest extends TestCase
 {
     /**
      * @var IOInterface the IO interface
@@ -44,12 +44,12 @@ final class ConfigurationProcessorTest extends TestCase
 
     public function testCreation()
     {
-        $this->processor = new ConfigurationProcessor(
+        $this->processor = new ModulesInstaller(
             $this->io->reveal(),
             $this->commandBuilder->reveal(),
             '/tmp'
         );
 
-        $this->assertInstanceOf(ConfigurationProcessor::class, $this->processor);
+        $this->assertInstanceOf(ModulesInstaller::class, $this->processor);
     }
 }

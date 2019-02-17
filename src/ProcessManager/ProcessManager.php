@@ -2,9 +2,10 @@
 
 namespace PrestaShop\Composer\ProcessManager;
 
-use Symfony\Component\Process\Process;
 use Composer\IO\IOInterface;
+use Symfony\Component\Process\Process;
 use PrestaShop\Composer\Contracts\ProcessManagerInterface;
+use PrestaShop\Composer\Exceptions\InvalidOperationException;
 
 /**
  * Main implementation of Process Manager, used to
@@ -91,6 +92,12 @@ final class ProcessManager implements ProcessManagerInterface
                 if (!$process->isRunning()) {
                     --$runningProcesses;
                     ++$this->operations;
+                    if (!$process->isSuccessful()) {
+                        throw new InvalidOperationException($process);
+                    }
+
+                    $this->io->write($process->getOutput());
+                    $outputResult .= $process->getOutput();
                 }
 
                 usleep($this->updateFrequency);
@@ -103,10 +110,6 @@ final class ProcessManager implements ProcessManagerInterface
                     false
                 );
             }
-        }
-
-        foreach ($processes as $process) {
-            $outputResult .= $process->getOutput();
         }
 
         return $outputResult;
