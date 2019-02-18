@@ -15,7 +15,8 @@ final class InvalidOperationException extends Exception
      */
     public function __construct(Process $process)
     {
-        $error = sprintf('The command "%s" failed.' . "\n\nExit Code: %s(%s)\n\nWorking directory: %s",
+        $error = sprintf(
+            'The command "%s" failed.' . "\n\nExit Code: %s(%s)\n\nWorking directory: %s",
             $process->getCommandLine(),
             $process->getExitCode(),
             $process->getExitCodeText(),
@@ -23,7 +24,8 @@ final class InvalidOperationException extends Exception
         );
 
         if (!$process->isOutputDisabled()) {
-            $error .= sprintf("\n\nOutput:\n================\n%s\n\nError Output:\n================\n%s",
+            $error .= sprintf(
+                '\n\nOutput:\n================\n%s\n\nError Output:\n================\n%s',
                 $process->getOutput(),
                 $process->getErrorOutput()
             );

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\PrestaShop\Composer\Installer;
+namespace Tests\PrestaShop\Composer\Operations;
 
 use PrestaShop\Composer\Installer\ModulesInstaller;
 use PrestaShop\Composer\Contracts\CommandBuilderInterface;
 use Composer\IO\IOInterface;
 use PHPUnit\Framework\TestCase;
 
-final class ModulesInstallerTest extends TestCase
+final class InstallerTest extends TestCase
 {
     /**
      * @var IOInterface the IO interface
@@ -47,6 +47,7 @@ final class ModulesInstallerTest extends TestCase
         $this->processor = new ModulesInstaller(
             $this->io->reveal(),
             $this->commandBuilder->reveal(),
+            [],
             '/tmp'
         );
 

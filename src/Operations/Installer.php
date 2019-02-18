@@ -1,13 +1,18 @@
 <?php
 
-namespace PrestaShop\Composer\Installer;
+namespace PrestaShop\Composer\Operations;
 
 use Composer\IO\IOInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use PrestaShop\Composer\ProcessManager\ProcessManager;
+use PrestaShop\Composer\Package;
 use PrestaShop\Composer\Actions\CreateProject;
+use PrestaShop\Composer\ProcessManager\ProcessManager;
 use PrestaShop\Composer\Contracts\CommandBuilderInterface;
+use PrestaShop\Composer\Configuration\ExtensionConfiguration;
 
+/**
+ * Operations to be executed when we install modules.
+ */
 final class ModulesInstaller
 {
     /**
@@ -26,6 +31,11 @@ final class ModulesInstaller
     private $commandBuilder;
 
     /**
+     * @var array the Composer configuration
+     */
+    private $composerConfiguration;
+
+    /**
      * @var string the modules folder path of the Shop
      */
     private $modulesLocation;
@@ -33,21 +43,27 @@ final class ModulesInstaller
     /**
      * @param IOInterface $io the CLI IO interface
      * @param CommandBuilderInterface $commandBuilder the Composer command executor
+     * @param array $composerConfiguration the Composer configuration
      * @param string $rootPath the Shop root path
      */
-    public function __construct(IOInterface $io, CommandBuilderInterface $commandBuilder, $rootPath)
-    {
+    public function __construct(
+        IOInterface $io,
+        CommandBuilderInterface $commandBuilder,
+        array $composerConfiguration,
+        $rootPath
+    ) {
         $this->io = $io;
         $this->commandBuilder = $commandBuilder;
+        $this->composerConfiguration = $composerConfiguration;
         $this->modulesLocation = $rootPath . self::MODULES_PATH;
     }
 
     public function execute()
     {
-        $configuration = new ExtensionConfiguration($configuration);
+        $configuration = new ExtensionConfiguration($this->composerConfiguration);
 
         $processManager = new ProcessManager(
-            $configuration->getUpdateFrequency(),
+            $configuration->getProcessUpdateFrequency(),
             $configuration->getProcesses(),
             $this->io
         );

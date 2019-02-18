@@ -37,13 +37,13 @@ final class ExtensionConfiguration implements ConfigurationInterface
             []
         ;
 
-        $this->updateFrequency = isset($configuration['update-frequency']) ?
-            $configuration['update-frequency'] :
+        $this->updateFrequency = isset($composerConfiguration['update-frequency']) ?
+            $composerConfiguration['update-frequency'] :
             self::DEFAULT_PROCESS_UPDATE_FREQUENCY
         ;
 
-        $this->processes = isset($configuration['processes']) ?
-            $configuration['processes'] :
+        $this->processes = isset($composerConfiguration['processes']) ?
+            $composerConfiguration['processes'] :
             self::DEFAULT_PARALLEL_PROCESSES
         ;
 

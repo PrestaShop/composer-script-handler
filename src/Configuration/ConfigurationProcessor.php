@@ -8,7 +8,7 @@ use PrestaShop\Composer\Contracts\ConfigurationProcessorInterface;
  * This class responsibility is to retrieve an extension configuration
  * from Composer configuration.
  */
-final class ConfigurationProcessor implements ConfigurationProcessInterface
+final class ConfigurationProcessor implements ConfigurationProcessorInterface
 {
     /**
      * @var array the Composer configuration
