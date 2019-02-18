@@ -52,6 +52,6 @@ You can configure the list of modules, the number of process to paralleling the 
 ### Performances
 
 You may not need to overwrite modules installation between parallel builds during CI operations.
-You can disable this feature using `NO_OVERWRITE` environment variable when calling ``composer install` command.
+You can disable this feature using `NO_OVERWRITE` environment variable when calling `composer install` command.
 
 > This project is under MIT license
