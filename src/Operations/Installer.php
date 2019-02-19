@@ -1,37 +1,24 @@
 <?php
 
-namespace PrestaShop\Composer;
+namespace PrestaShop\Composer\Operations;
 
 use Composer\IO\IOInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use PrestaShop\Composer\ProcessManager\ProcessManager;
+use PrestaShop\Composer\Package;
 use PrestaShop\Composer\Actions\CreateProject;
+use PrestaShop\Composer\ProcessManager\ProcessManager;
 use PrestaShop\Composer\Contracts\CommandBuilderInterface;
+use PrestaShop\Composer\Configuration\ExtensionConfiguration;
 
 /**
- * According to the configuration of "extras > prestashop" in Composer json file,
- * will call a Process Executor to execute Composer commands.
+ * Operations to be executed when we install modules.
  */
-final class ConfigurationProcessor
+final class ModulesInstaller
 {
     /**
      * @var string the modules path
      */
     const MODULES_PATH = '/modules/';
-
-    /**
-     * @var int the number of allowed parallel PHP processes
-     */
-    const DEFAULT_PARALLEL_PROCESSES = 2;
-    /**
-     * @var int the time to wait before check the status of a process (in ms)
-     */
-    const DEFAULT_PROCESS_UPDATE_FREQUENCY = 2000;
-
-    /**
-     * @var bool default value for overwriting modules operations
-     */
-    const DEFAULT_OVERWRITING_PROCESS = true;
 
     /**
      * @var IOInterface the CLI IO interface
@@ -44,63 +31,49 @@ final class ConfigurationProcessor
     private $commandBuilder;
 
     /**
+     * @var array the Composer configuration
+     */
+    private $composerConfiguration;
+
+    /**
      * @var string the modules folder path of the Shop
      */
     private $modulesLocation;
 
     /**
-     * ConfigurationProcessor constructor.
-     *
      * @param IOInterface $io the CLI IO interface
      * @param CommandBuilderInterface $commandBuilder the Composer command executor
+     * @param array $composerConfiguration the Composer configuration
      * @param string $rootPath the Shop root path
      */
-    public function __construct(IOInterface $io, CommandBuilderInterface $commandBuilder, $rootPath)
-    {
+    public function __construct(
+        IOInterface $io,
+        CommandBuilderInterface $commandBuilder,
+        array $composerConfiguration,
+        $rootPath
+    ) {
         $this->io = $io;
         $this->commandBuilder = $commandBuilder;
+        $this->composerConfiguration = $composerConfiguration;
         $this->modulesLocation = $rootPath . self::MODULES_PATH;
     }
 
-    /**
-     * Foreach module, will install the module dependencies
-     * into /modules/{module}/vendor folder.
-     *
-     * @param array $configuration the Composer configuration
-     *
-     * @return void
-     */
-    public function processInstallation(array $configuration)
+    public function execute()
     {
-        $this->io->write('<info>PrestaShop Module installer</info>');
+        $configuration = new ExtensionConfiguration($this->composerConfiguration);
 
-        if (!isset($configuration['modules'])) {
-            return;
-        }
-
-        $modules = $configuration['modules'];
-        $updateFrequency = isset($configuration['update-frequency']) ?
-            $configuration['update-frequency'] :
-            self::DEFAULT_PROCESS_UPDATE_FREQUENCY
-        ;
-
-        $processes = isset($configuration['processes']) ?
-            $configuration['processes'] :
-            self::DEFAULT_PARALLEL_PROCESSES
-        ;
-
-        $overwritingValue = false !== getenv('NO_OVERWRITE') ?
-            false :
-            self::DEFAULT_OVERWRITING_PROCESS
-        ;
-
-        $processManager = new ProcessManager($updateFrequency, $processes, $this->io);
-        $shouldOverWrite = $this->io->askConfirmation(
-            'Do you want to overwrite the existing modules? (y/n)',
-            $overwritingValue
+        $processManager = new ProcessManager(
+            $configuration->getProcessUpdateFrequency(),
+            $configuration->getProcesses(),
+            $this->io
         );
 
-        foreach ($modules as $moduleName => $moduleVersion) {
+        $shouldOverWrite = $this->io->askConfirmation(
+            'Do you want to overwrite the existing modules? (y/n)',
+            $configuration->isOverwritingEnabled()
+        );
+
+        foreach ($configuration->getModules() as $moduleName => $moduleVersion) {
             $package = Package::create($moduleName, $moduleVersion, $this->modulesLocation);
             $modulePath = $this->modulesLocation . $package->getName();
 

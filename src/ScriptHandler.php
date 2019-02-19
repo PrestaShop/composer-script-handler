@@ -4,6 +4,7 @@ namespace PrestaShop\Composer;
 
 use Composer\Script\Event;
 use InvalidArgumentException;
+use PrestaShop\Composer\Operations\Installer;
 
 /**
  * Entry point available through Composer script actions.
@@ -21,16 +22,18 @@ final class ScriptHandler
     {
         $composer = $event->getComposer();
         $rootPath = (string) realpath($composer->getConfig()->get('vendor-dir') . '/..');
-
         $extras = $composer->getPackage()->getExtra();
 
         if (self::validateConfiguration($extras)) {
-            $config = $extras['prestashop'];
-
+            $event->getIO()->write('<info>PrestaShop Module installer</info>');
             $commandBuilder = new CommandBuilder($rootPath);
-            $processor = new ConfigurationProcessor($event->getIO(), $commandBuilder, $rootPath);
-
-            $processor->processInstallation($config);
+            $moduleInstaller = new ModulesInstaller(
+                $event->getIO(),
+                $commandBuilder,
+                $extras['prestashop'],
+                $rootPath
+            );
+            $moduleInstaller->execute();
         }
     }
 
@@ -65,6 +68,6 @@ final class ScriptHandler
             );
         }
 
-        return true;
+        return isset($configuration['prestashop']['modules']);
     }
 }
